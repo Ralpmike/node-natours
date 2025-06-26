@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const dotenv = require('dotenv');
-const { error } = require('console');
+const morgan = require('morgan');
 
 dotenv.config();
 
@@ -10,7 +10,7 @@ const app = express();
 
 // ?Middlewares
 app.use(express.json());
-
+app.use(morgan('dev'));
 app.use((req, res, next) => {
   console.log('Hello from the middleware 👋');
   next();
@@ -23,7 +23,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// ?Routes
+// ?Routes handlers
 const filePath = path.join(__dirname, 'dev-data', 'data', 'tours-simple.json');
 const data = fs.readFileSync(filePath, 'utf-8');
 const tours = JSON.parse(data);
@@ -155,6 +155,7 @@ const deleteTour = (req, res) => {
 // app.patch('/api/v1/tours/:id', updateTour);
 // app.delete('/api/v1/tours/:id', deleteTour);
 
+// ?Routes
 app.route('/api/v1/tours').get(getAllTours).post(createTour);
 
 app
@@ -166,6 +167,7 @@ app
 const port = process.env.PORT || 3000;
 // app.use(express.static('public'));
 
+// ?Starting the server
 app.listen(port, () => {
   console.log('App running on port 3000...');
 });
