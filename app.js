@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const dotenv = require('dotenv');
+const { error } = require('console');
 
 dotenv.config();
 
@@ -30,7 +31,7 @@ app.get('/api/v1/tours/:id', (req, res) => {
   const tour = tours.find((el) => el.id === id);
 
   // if (tours.length < id) {
-  if (!tours) {
+  if (!tour) {
     return res.status(404).json({
       status: 'fail',
       message: 'Invalid ID',
@@ -60,6 +61,43 @@ app.post('/api/v1/tours', (req, res) => {
     status: 'success',
     data: {
       tour: newTour,
+    },
+  });
+});
+
+app.patch('/api/v1/tours/:id', (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const tourIndex = tours.findIndex((el) => el.id === id);
+
+  if (tourIndex === -1) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invalid ID',
+    });
+  }
+
+  const updateTour = {
+    ...tours[tourIndex],
+    ...req.body,
+  };
+
+  tours[tourIndex] = updateTour;
+
+  fs.writeFile(filePath, JSON.stringify(tours, null, 2), (err) => {
+    return res.status(500).json({
+      status: 'error',
+      message: "Couldn't update data",
+      error: {
+        message: err,
+      },
+    });
+  });
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Updated successfully',
+    data: {
+      tour: updateTour,
     },
   });
 });
