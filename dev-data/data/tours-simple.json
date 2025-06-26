@@ -205,12 +205,5 @@
       "2022-01-16,10:00",
       "2022-12-12,10:00"
     ]
-  },
-  {
-    "id": 10,
-    "name": "New Tours",
-    "location": "France",
-    "difficulty": "easy",
-    "duration": 10
   }
 ]

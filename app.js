@@ -102,6 +102,38 @@ app.patch('/api/v1/tours/:id', (req, res) => {
   });
 });
 
+app.delete('/api/v1/tours/:id', async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const tourIndex = tours.findIndex((el) => el.id === id);
+
+  if (tourIndex === -1) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invalid ID',
+    });
+  }
+
+  tours.splice(tourIndex, 1);
+
+  fs.writeFile(filePath, JSON.stringify(tours, null, 2), (err) => {
+    if (err) {
+      return res.status(500).json({
+        status: 'error',
+        message: "Couldn't delete data",
+        error: {
+          message: err,
+        },
+      });
+    }
+
+    res.status(204).json({
+      status: 'success',
+      message: 'Deleted successfully',
+      data: null,
+    });
+  });
+});
+
 const port = process.env.PORT || 3000;
 // app.use(express.static('public'));
 
