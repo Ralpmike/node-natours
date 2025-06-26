@@ -16,7 +16,7 @@ const filePath = path.join(__dirname, 'dev-data', 'data', 'tours-simple.json');
 const data = fs.readFileSync(filePath, 'utf-8');
 const tours = JSON.parse(data);
 
-app.get('/api/v1/tours', (req, res) => {
+const getAllTours = (req, res) => {
   res.status(200).json({
     status: 'success',
     results: tours.length,
@@ -24,9 +24,9 @@ app.get('/api/v1/tours', (req, res) => {
       tours,
     },
   });
-});
+};
 
-app.get('/api/v1/tours/:id', (req, res) => {
+const getTour = (req, res) => {
   const id = parseInt(req.params.id, 10);
   const tour = tours.find((el) => el.id === id);
 
@@ -45,9 +45,9 @@ app.get('/api/v1/tours/:id', (req, res) => {
       tour,
     },
   });
-});
+};
 
-app.post('/api/v1/tours', (req, res) => {
+const createTour = (req, res) => {
   console.log(req.body);
   const newId = tours[tours.length - 1].id + 1;
   const newTour = Object.assign({ id: newId }, req.body);
@@ -63,9 +63,9 @@ app.post('/api/v1/tours', (req, res) => {
       tour: newTour,
     },
   });
-});
+};
 
-app.patch('/api/v1/tours/:id', (req, res) => {
+const updateTour = (req, res) => {
   const id = parseInt(req.params.id, 10);
   const tourIndex = tours.findIndex((el) => el.id === id);
 
@@ -84,25 +84,27 @@ app.patch('/api/v1/tours/:id', (req, res) => {
   tours[tourIndex] = updateTour;
 
   fs.writeFile(filePath, JSON.stringify(tours, null, 2), (err) => {
-    return res.status(500).json({
-      status: 'error',
-      message: "Couldn't update data",
-      error: {
-        message: err,
+    if (err) {
+      return res.status(500).json({
+        status: 'error',
+        message: "Couldn't update data",
+        error: {
+          message: err,
+        },
+      });
+    }
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Updated successfully',
+      data: {
+        tour: updateTour,
       },
     });
   });
+};
 
-  res.status(200).json({
-    status: 'success',
-    message: 'Updated successfully',
-    data: {
-      tour: updateTour,
-    },
-  });
-});
-
-app.delete('/api/v1/tours/:id', async (req, res) => {
+const deleteTour = (req, res) => {
   const id = parseInt(req.params.id, 10);
   const tourIndex = tours.findIndex((el) => el.id === id);
 
@@ -132,7 +134,21 @@ app.delete('/api/v1/tours/:id', async (req, res) => {
       data: null,
     });
   });
-});
+};
+
+// app.get('/api/v1/tours', getAllTours);
+// app.get('/api/v1/tours/:id', getTour);
+// app.post('/api/v1/tours', createTour);
+// app.patch('/api/v1/tours/:id', updateTour);
+// app.delete('/api/v1/tours/:id', deleteTour);
+
+app.route('/api/v1/tours').get(getAllTours).post(createTour);
+
+app
+  .route('/api/v1/tours/:id')
+  .get(getTour)
+  .patch(updateTour)
+  .delete(deleteTour);
 
 const port = process.env.PORT || 3000;
 // app.use(express.static('public'));
