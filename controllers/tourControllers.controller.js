@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+const { error } = require('console');
 
 const filePath = path.join(
   __dirname,
@@ -17,6 +18,20 @@ exports.checkId = (req, res, next, val) => {
     return res.status(404).json({
       status: 'fail',
       message: 'Invalid ID',
+    });
+  }
+  next();
+};
+exports.checkBody = (req, res, next) => {
+  const { name, price } = req.body;
+
+  if (!name || !price) {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'Missing name or price',
+      error: {
+        message: 'Bad request',
+      },
     });
   }
   next();
