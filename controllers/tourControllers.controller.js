@@ -11,6 +11,17 @@ const filePath = path.join(
 const data = fs.readFileSync(filePath);
 const tours = JSON.parse(data);
 
+exports.checkId = (req, res, next, val) => {
+  console.log(`Tour id is: ${val}`);
+  if (req.params.id * 1 > tours.length) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invalid ID',
+    });
+  }
+  next();
+};
+
 //?get all tours
 exports.getAllTours = (req, res) => {
   res.status(200).json({
@@ -29,12 +40,12 @@ exports.getTour = (req, res) => {
   const tour = tours.find((el) => el.id === id);
 
   // if (tours.length < id) {
-  if (!tour) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'Invalid ID',
-    });
-  }
+  // if (!tour) {
+  //   return res.status(404).json({
+  //     status: 'fail',
+  //     message: 'Invalid ID',
+  //   });
+  // }
   // const tour = tours.find((el) => el.id === id);
 
   res.status(200).json({
@@ -69,12 +80,12 @@ exports.updateTour = (req, res) => {
   const id = parseInt(req.params.id, 10);
   const tourIndex = tours.findIndex((el) => el.id === id);
 
-  if (tourIndex === -1) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'Invalid ID',
-    });
-  }
+  // if (tourIndex === -1) {
+  //   return res.status(404).json({
+  //     status: 'fail',
+  //     message: 'Invalid ID',
+  //   });
+  // }
 
   const updateTour = {
     ...tours[tourIndex],
@@ -109,12 +120,12 @@ exports.deleteTour = (req, res) => {
   const id = parseInt(req.params.id, 10);
   const tourIndex = tours.findIndex((el) => el.id === id);
 
-  if (tourIndex === -1) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'Invalid ID',
-    });
-  }
+  // if (tourIndex === -1) {
+  //   return res.status(404).json({
+  //     status: 'fail',
+  //     message: 'Invalid ID',
+  //   });
+  // }
 
   tours.splice(tourIndex, 1);
 
