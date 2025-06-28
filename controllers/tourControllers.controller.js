@@ -1,13 +1,12 @@
 const path = require('path');
 const fs = require('fs');
-const { error } = require('console');
 
 const filePath = path.join(
   __dirname,
   '..',
   'dev-data',
   'data',
-  'tours-simple.json'
+  'tours-simple.json',
 );
 const data = fs.readFileSync(filePath);
 const tours = JSON.parse(data);
@@ -75,7 +74,10 @@ exports.getTour = (req, res) => {
 exports.createTour = (req, res) => {
   console.log(req.body);
   const newId = tours[tours.length - 1].id + 1;
-  const newTour = Object.assign({ id: newId }, req.body);
+  const newTour = {
+    id: newId,
+    ...req.body,
+  };
   tours.push(newTour);
 
   fs.writeFile(filePath, JSON.stringify(tours), (err) => {
