@@ -1,20 +1,5 @@
 const Tour = require('../models/tourModel');
 
-exports.checkBody = (req, res, next) => {
-  const { name, price } = req.body;
-
-  if (!name || !price) {
-    return res.status(400).json({
-      status: 'fail',
-      message: 'Missing name or price',
-      error: {
-        message: 'Bad request',
-      },
-    });
-  }
-  next();
-};
-
 //?get all tours
 exports.getAllTours = (req, res) => {
   res.status(200).json({
@@ -40,15 +25,25 @@ exports.getTour = (req, res) => {
 };
 
 //?create tour
-exports.createTour = (req, res) => {
-  console.log(req.body);
+exports.createTour = async (req, res) => {
+  try {
+    // const newTour = new Tour({});
+    // newTour.save();
 
-  res.status(201).json({
-    status: 'success',
-    // data: {
-    //   tour: newTour,
-    // },
-  });
+    const newTour = await Tour.create(req.body);
+
+    res.status(201).json({
+      status: 'success',
+      data: {
+        tour: newTour,
+      },
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: 'fail',
+      message: 'Invalid data sent!',
+    });
+  }
 };
 
 //?update tour
