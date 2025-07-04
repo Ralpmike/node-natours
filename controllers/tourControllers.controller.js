@@ -5,7 +5,7 @@ exports.getAllTours = async (req, res) => {
   try {
     console.log(req.query);
     //?BUILD QUERY
-    //?1) filtering
+    //?1a) filtering
     const queryObj = { ...req.query };
     const excludeFields = ['page', 'sort', 'limit', 'fields'];
     excludeFields.forEach((el) => delete queryObj[el]);
@@ -13,13 +13,21 @@ exports.getAllTours = async (req, res) => {
     // {difficulty: easy, duration: { gte: 5 } }
     // {difficulty: easy, duration: { $gte: 5 } } mongoose operator
 
-    //?2) advanced filtering
+    //?1b) advanced filtering
     let queryStr = JSON.stringify(queryObj);
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
-    console.log(JSON.parse(queryStr));
 
     //?filtering using mongoose methods
-    const query = Tour.find(JSON.parse(queryStr));
+    let query = Tour.find(JSON.parse(queryStr));
+
+    //?2) sorting
+
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(',').join(' ');
+      query = query.sort(sortBy);
+    } else {
+      query = query.sort('-createdAt'); //?default sorting: sorting in descending order
+    }
 
     //?EXECUTE QUERY
     const tours = await query;
