@@ -13,6 +13,7 @@ const staticFilePath = path.join(__dirname, 'public');
 
 // ?Middlewares
 app.set('query parser', (str) => qs.parse(str));
+// app.set('query parser', (str) => qs.parse(str, { allowPrototypes: true }));
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
@@ -23,24 +24,6 @@ app.use((req, res, next) => {
   console.log('Hello from the middleware 👋');
   next();
 });
-
-app.use((req, res, next) => {
-  console.log('Hello from the middleware 👋👍');
-  req.requestedAt = new Date().toISOString();
-
-  next();
-});
-
-//? user routes
-
-// app.get('/api/v1/tours', getAllTours);
-// app.get('/api/v1/tours/:id', getTour);
-// app.post('/api/v1/tours', createTour);
-// app.patch('/api/v1/tours/:id', updateTour);
-// app.delete('/api/v1/tours/:id', deleteTour);
-// app.use(express.static('public'));
-
-// ?Routes
 
 // ?Mounting the routes
 app.use('/api/v1/tours', tourRouter);
