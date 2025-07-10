@@ -1,4 +1,5 @@
 const Tour = require('../models/tourModel');
+const APIFeatures = require('../utils/ApiFeatures');
 
 exports.aliasTopTours = (req, res, next) => {
   req.aliasQuery = {
@@ -12,58 +13,18 @@ exports.aliasTopTours = (req, res, next) => {
 //?get all tours
 exports.getAllTours = async (req, res) => {
   try {
-    console.log('[getAllTours START] req.query =', req.query);
     //?BUILD QUERY
     //?1a) filtering
     const queryParams = req.aliasQuery || req.query;
-    const queryObj = { ...queryParams };
-    console.log('[getAllTours] Final Query =', queryParams);
-    const excludeFields = ['page', 'sort', 'limit', 'fields'];
-    excludeFields.forEach((el) => delete queryObj[el]);
 
-    // {difficulty: easy, duration: { gte: 5 } }
-    // {difficulty: easy, duration: { $gte: 5 } } mongoose operator
-
-    //?1b) advanced filtering
-    let queryStr = JSON.stringify(queryObj);
-    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
-
-    //?filtering using mongoose methods
-    let query = Tour.find(JSON.parse(queryStr));
-
-    //?2) sorting
-
-    if (queryParams.sort) {
-      const sortBy = queryParams.sort.split(',').join(' ');
-      query = query.sort(sortBy);
-    } else {
-      query = query.sort('-createdAt'); //?default sorting: sorting in descending order
-    }
-
-    //?3 Field limiting
-
-    if (queryParams.fields) {
-      const fields = queryParams.fields.split(',').join(' ');
-      query = query.select(fields);
-    } else {
-      query = query.select('-__v');
-    }
-
-    //?4) Pagination
-    //page=2&limit=10: page 1: 0-9, page 2: 10-19, page 3: 20-29
-    const page = queryParams.page * 1 || 1;
-    const limit = queryParams.limit * 1 || 100;
-    const skip = (page - 1) * limit;
-
-    query = query.skip(skip).limit(limit);
-
-    if (queryParams.page) {
-      const numTours = await Tour.countDocuments();
-      if (skip >= numTours) throw new Error('This page does not exist');
-    }
+    const features = new APIFeatures(Tour.find(), queryParams)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
 
     //?EXECUTE QUERY
-    const tours = await query;
+    const tours = await features.query;
     // const query = await Tour.find()
     //   .where('duration')
     //   .equals(5)
