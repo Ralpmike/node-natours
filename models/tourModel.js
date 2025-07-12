@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 // eslint-disable-next-line import/no-extraneous-dependencies
 const slugify = require('slugify');
+// eslint-disable-next-line import/no-extraneous-dependencies
+// const validator = require('validator');
 
 // JSON.stringify(doc.toObject({ virtuals: true }));
 
@@ -13,6 +15,7 @@ const tourSchema = new mongoose.Schema(
       trim: true,
       maxLength: [40, 'A tour name must have less or equal to 40 characters'],
       minLength: [10, 'A tour name must have more or equal to 10 characters'],
+      // validate: [validator.isAlpha, 'Tour name must only contain characters'],
     },
     slug: String,
     duration: {
@@ -28,7 +31,8 @@ const tourSchema = new mongoose.Schema(
       required: [true, 'A tour must have a difficulty'],
       enum: {
         values: ['easy', 'medium', 'difficult'],
-        message: 'Difficulty is either: easy, medium or difficult',
+        message:
+          'Difficulty is either: easy, medium or difficult. This "{VALUE}" is not supported',
       },
     },
     ratingsAverage: {
@@ -49,7 +53,16 @@ const tourSchema = new mongoose.Schema(
       type: Number,
       required: [true, 'A tour must have a price'],
     },
-    priceDiscount: Number,
+    priceDiscount: {
+      type: Number,
+      validate: {
+        //?This only points to current doc on NEW document creation
+        validator: function (val) {
+          return val < this.price;
+        },
+        message: 'Discount price ({VALUE}) should be below regular price',
+      },
+    },
     summary: {
       type: String,
       trim: true,
