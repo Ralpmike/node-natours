@@ -5,6 +5,14 @@ const handleCastErrorDB = (err) => {
   return new AppError(message, 400);
 };
 
+const handleDuplicateFieldsDB = (err) => {
+  console.log('Duplicate field error:', err);
+  const value = err.errorResponse.errmsg.match(/(["'])(\\?.)*?\1/)[0]; // Extract the value from the error message
+
+  const message = `Duplicate field value: ${value}. Please use another value!`;
+  return new AppError(message, 400);
+};
+
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
@@ -54,11 +62,16 @@ module.exports = (err, req, res, next) => {
       name: err.name,
       stack: err.stack,
     }; // This creates a shallow copy of the error object
-    console.log('error1', error);
-    if (error.name === 'CastError') error = handleCastErrorDB(error);
-    // For production, we can send a more generic error message
-    console.log('error2', error);
+    // let error = Object.create(err);
+    // error.message = err.message;
+    // error.name = err.name;
+    // error.stack = err.stack;
 
+    if (error.name === 'CastError') error = handleCastErrorDB(error);
+
+    if (error.code === 11000) error = handleDuplicateFieldsDB(error);
+
+    // For production, we can send a more generic error message
     sendErrorProd(error, res);
   }
 };
