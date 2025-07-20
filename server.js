@@ -36,8 +36,19 @@ mongoose.connect(DB).then((con) => {
 // ?Starting the server
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`App running on port ${port}...`);
 });
 
 //?Test
+
+//?Handling unhandled rejections
+process.on('unhandledRejection', (err) => {
+  console.error('MongoServerError:', err.message, err.name); // Handle MongoDB server errors
+  // You can log the error or take other actions as needed
+  console.log('Unhandled Rejection! Shutting down...');
+
+  server.close(() => {
+    process.exit(1); // Exit the process with a failure code
+  });
+});
