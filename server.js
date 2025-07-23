@@ -1,6 +1,13 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 
+//?Handling uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception! Shutting down...');
+  console.error(err.name, err.message);
+  process.exit(1); // Exit the process with a failure co
+});
+
 dotenv.config();
 
 const app = require('./app');
@@ -48,6 +55,7 @@ process.on('unhandledRejection', (err) => {
   // You can log the error or take other actions as needed
   console.log('Unhandled Rejection! Shutting down...');
 
+  //? gracefully close the server before exiting
   server.close(() => {
     process.exit(1); // Exit the process with a failure code
   });
