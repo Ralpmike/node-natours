@@ -14,6 +14,7 @@ const staticFilePath = path.join(__dirname, 'public');
 
 // ?Middlewares
 app.set('query parser', (str) => qs.parse(str));
+
 // app.set('query parser', (str) => qs.parse(str, { allowPrototypes: true }));
 
 if (process.env.NODE_ENV === 'development') {

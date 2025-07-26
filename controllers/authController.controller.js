@@ -1,3 +1,4 @@
+const { promisify } = require('util');
 // eslint-disable-next-line import/no-extraneous-dependencies
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
@@ -8,6 +9,8 @@ const signInToken = (payload) =>
   jwt.sign(payload, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
+
+// const verifyToken = (token) => jwt.verify(token, process.env.JWT_SECRET);
 
 exports.signup = catchAsync(async (req, res, next) => {
   const { email, name, password, passwordConfirm } = req.body;
@@ -49,4 +52,25 @@ exports.login = catchAsync(async (req, res, next) => {
     status: 'success',
     token,
   });
+});
+
+exports.protect = catchAsync(async (req, res, next) => {
+  //?1) Getting token and check if it's there
+  const headers = req.headers.authorization;
+
+  if (!headers || !headers.startsWith('Bearer ')) {
+    return next(
+      new AppError('You are not logged in! Please log in to get access.', 401),
+    );
+  }
+
+  const token = headers.split(' ')[1];
+
+  //?2) Verification token
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
+  console.log('decoded', decoded);
+
+  console.log('headers', headers);
+  // next();
 });
