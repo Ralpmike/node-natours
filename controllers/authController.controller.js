@@ -13,7 +13,7 @@ const signInToken = (payload) =>
 // const verifyToken = (token) => jwt.verify(token, process.env.JWT_SECRET);
 
 exports.signup = catchAsync(async (req, res, next) => {
-  const { email, name, password, passwordConfirm, passwordChangedAt } =
+  const { email, name, password, passwordConfirm, passwordChangedAt, role } =
     req.body;
 
   const newUser = await User.create({
@@ -22,8 +22,9 @@ exports.signup = catchAsync(async (req, res, next) => {
     password,
     passwordConfirm,
     passwordChangedAt,
+    role,
   });
-  const token = signInToken({ id: newUser._id, name: newUser.name });
+  const token = signInToken({ id: newUser._id, name: newUser.name, role });
 
   res.status(201).json({
     status: 'success',
@@ -46,7 +47,6 @@ exports.login = catchAsync(async (req, res, next) => {
   if (!user || !(await user.confirmPassword(password, user.password))) {
     return next(new AppError('Incorrect email or password', 401));
   }
-
   console.log(user);
 
   //? Check if the user password is correct

@@ -26,6 +26,11 @@ const userSchema = new mongoose.Schema(
       minLength: [8, 'Password must be at least 8 characters'],
       select: false,
     },
+    role: {
+      type: String,
+      enum: ['user', 'guide', 'lead-guide', 'admin'],
+      default: 'user',
+    },
     passwordConfirm: {
       type: String,
       required: [true, 'Password does not match: Please confirm your password'],
@@ -65,12 +70,6 @@ userSchema.methods.confirmPassword = async function (
 };
 
 userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
-  console.log(
-    'this.passwordChangedAt =',
-    this.passwordChangedAt,
-    'JWTTimestamp = ',
-    JWTTimestamp,
-  );
   if (this.passwordChangedAt) {
     const changedTimestamp = parseInt(
       this.passwordChangedAt.getTime() / 1000,
