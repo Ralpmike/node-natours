@@ -24,6 +24,7 @@ app.use(express.json());
 app.use(express.static(staticFilePath));
 
 // ?Mounting the routes
+console.log('User routes mounted on /api/v1/users');
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
