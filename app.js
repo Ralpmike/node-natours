@@ -1,4 +1,5 @@
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const path = require('path');
 // eslint-disable-next-line import/no-extraneous-dependencies
 const qs = require('qs');
@@ -12,19 +13,26 @@ const app = express();
 
 const staticFilePath = path.join(__dirname, 'public');
 
-// ?Middlewares
+// ? 1. GLOBAL Middlewares
 app.set('query parser', (str) => qs.parse(str));
-
-// app.set('query parser', (str) => qs.parse(str, { allowPrototypes: true }));
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
+
+const limiter = rateLimit({
+  limit: 100,
+  windowMs: 60 * 60 * 1000,
+  message: {
+    error: 'Too many requests from this IP, please try again in an hour!',
+  },
+});
+
+app.use('/api', limiter);
 app.use(express.json());
 app.use(express.static(staticFilePath));
 
 // ?Mounting the routes
-console.log('User routes mounted on /api/v1/users');
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
