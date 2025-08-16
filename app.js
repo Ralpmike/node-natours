@@ -4,6 +4,7 @@ const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const bodyParser = require('body-parser');
 const path = require('path');
+const hpp = require('hpp');
 // eslint-disable-next-line import/no-extraneous-dependencies
 const qs = require('qs');
 const morgan = require('morgan');
@@ -58,6 +59,20 @@ app.use(
 
 //?Data sanitization against XSS :Prevent attacks against XSS
 app.use(sanitizeInput);
+
+//? Prevent parameter pollution
+app.use(
+  hpp({
+    whitelist: [
+      'duration',
+      'ratingsAverage',
+      'ratingsQuantity',
+      'maxGroupSize',
+      'difficulty',
+      'price',
+    ],
+  }),
+);
 
 //? Serving static files
 app.use(express.static(staticFilePath));
