@@ -18,7 +18,7 @@ mongoose.connect(DB).then((con) => {
 });
 
 //READ JSON FILE
-const filePath = path.join(__dirname, 'tours-simple.json');
+const filePath = path.join(__dirname, 'tours.json');
 
 const data = fs.readFileSync(filePath);
 const tours = JSON.parse(data);
